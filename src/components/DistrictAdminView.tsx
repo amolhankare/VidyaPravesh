@@ -60,16 +60,12 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
     });
   }, [submissions, currentDistrictObj, selectedMonth]);
 
-  // District Level High-Level Summaries
+  // District Level High-Level Summaries (100% real submission counts)
   const liveCount = districtSubmissions.length;
-  const scaledDistrictCollection = Math.min(
-    currentDistrictObj.totalSchoolsTarget,
-    liveCount * 120 + Math.floor(currentDistrictObj.totalSchoolsTarget * 0.68)
-  );
-  const districtCompletionPct = (
-    (scaledDistrictCollection / currentDistrictObj.totalSchoolsTarget) *
-    100
-  ).toFixed(1);
+  const scaledDistrictCollection = liveCount;
+  const districtCompletionPct = currentDistrictObj.totalSchoolsTarget > 0
+    ? ((liveCount / currentDistrictObj.totalSchoolsTarget) * 100).toFixed(2)
+    : '0.00';
 
   const totalBoys = useMemo(
     () => districtSubmissions.reduce((acc, s) => acc + s.boysCount, 0),
@@ -95,11 +91,10 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
       );
 
       const liveBlockCount = blockSubmissions.length;
-      const scaledBlockCollected = Math.min(
-        totalTarget,
-        liveBlockCount * 40 + Math.floor(totalTarget * 0.65)
-      );
-      const blockPct = ((scaledBlockCollected / totalTarget) * 100).toFixed(1);
+      const scaledBlockCollected = liveBlockCount;
+      const blockPct = totalTarget > 0
+        ? ((liveBlockCount / totalTarget) * 100).toFixed(2)
+        : '0.00';
 
       return {
         blockObj,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, PortalMode, SchoolAssessmentSubmission } from './types';
-import { getStoredSubmissions, resetToSeedData } from './utils/storage';
+import { getStoredSubmissions, clearAllSubmissions, fetchRemoteSubmissions } from './utils/storage';
 import { Navbar } from './components/Navbar';
 import { SchoolForm } from './components/SchoolForm';
 import { StateAdminView } from './components/StateAdminView';
@@ -30,10 +30,15 @@ export default function App() {
     'खडकवासला केंद्र (Khadakwasla Center)'
   );
 
-  // Load submissions from storage on mount
-  const refreshData = () => {
+  // Load submissions from storage on mount & try Google Sheet sync
+  const refreshData = async () => {
     const data = getStoredSubmissions();
     setSubmissions(data);
+
+    const remote = await fetchRemoteSubmissions();
+    if (remote && Array.isArray(remote)) {
+      setSubmissions(remote);
+    }
   };
 
   useEffect(() => {
@@ -43,11 +48,11 @@ export default function App() {
   const handleResetData = () => {
     const confirmText =
       lang === 'mr'
-        ? 'नमुना डेटा पूर्ववत करायचा आहे का?'
-        : 'Are you sure you want to reset to initial seed data?';
+        ? 'सर्व सबमिशन डेटा पूर्णपणे हटवायचा आहे का?'
+        : 'Are you sure you want to clear all submission data?';
 
     if (window.confirm(confirmText)) {
-      const fresh = resetToSeedData();
+      const fresh = clearAllSubmissions();
       setSubmissions(fresh);
     }
   };
@@ -154,6 +159,7 @@ export default function App() {
             submissions={submissions}
             lang={lang}
             onSelectDistrict={handleNavigateToDistrict}
+            onOpenGoogleSheetsModal={() => setIsGoogleSheetsModalOpen(true)}
           />
         )}
 
@@ -209,6 +215,14 @@ export default function App() {
                 {lang === 'mr' ? 'लॉगआउट करा' : 'Logout Admin'}
               </button>
             )}
+            <span className="text-slate-600">|</span>
+            <button
+              onClick={() => setIsGoogleSheetsModalOpen(true)}
+              className="text-emerald-400 hover:underline font-medium text-xs cursor-pointer flex items-center gap-1"
+            >
+              <span>⚡</span>
+              <span>{lang === 'mr' ? 'गूगल शीट डेटाबेस सेटअप (₹० मोफत)' : 'Google Sheet Setup (₹0)'}</span>
+            </button>
             <span className="text-slate-600">|</span>
             <p className="text-slate-500 text-[11px]">
               {lang === 'mr'

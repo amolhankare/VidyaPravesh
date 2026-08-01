@@ -15,18 +15,21 @@ import {
   ArrowRight,
   TrendingUp,
   Award,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 interface StateAdminViewProps {
   submissions: SchoolAssessmentSubmission[];
   lang: 'mr' | 'en';
   onSelectDistrict: (districtName: string) => void;
+  onOpenGoogleSheetsModal?: () => void;
 }
 
 export const StateAdminView: React.FC<StateAdminViewProps> = ({
   submissions,
   lang,
   onSelectDistrict,
+  onOpenGoogleSheetsModal,
 }) => {
   const isMarathi = lang === 'mr';
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
@@ -39,18 +42,11 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
       : submissions.filter((s) => s.month === selectedMonth);
   }, [selectedMonth, submissions]);
 
-  // Calculate State Level Metrics
+  // Calculate State Level Metrics (100% real submission counts)
   const totalSubmissions = filteredSubmissions.length;
-  const targetScaleFactor = 1000; // Simulated scale factor for 1.2 Lakh state target display
-  const simulatedStateCollected = Math.min(
-    MAHARASHTRA_TOTAL_SCHOOL_TARGET,
-    totalSubmissions * targetScaleFactor + 84200
-  );
-
-  const percentageTarget = (
-    (simulatedStateCollected / MAHARASHTRA_TOTAL_SCHOOL_TARGET) *
-    100
-  ).toFixed(1);
+  const percentageTarget = MAHARASHTRA_TOTAL_SCHOOL_TARGET > 0
+    ? ((totalSubmissions / MAHARASHTRA_TOTAL_SCHOOL_TARGET) * 100).toFixed(2)
+    : '0.00';
 
   const totalBoys = useMemo(
     () => filteredSubmissions.reduce((acc, s) => acc + s.boysCount, 0),
@@ -72,15 +68,9 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
       );
 
       const actualCount = distSubmissions.length;
-      // Scaled representation for realistic state overview
-      const scaledCollected = Math.min(
-        dist.totalSchoolsTarget,
-        actualCount * 120 + Math.floor(dist.totalSchoolsTarget * 0.65)
-      );
-      const distPercentage = (
-        (scaledCollected / dist.totalSchoolsTarget) *
-        100
-      ).toFixed(1);
+      const distPercentage = dist.totalSchoolsTarget > 0
+        ? ((actualCount / dist.totalSchoolsTarget) * 100).toFixed(2)
+        : '0.00';
 
       const distBoys = distSubmissions.reduce((acc, s) => acc + s.boysCount, 0);
       const distGirls = distSubmissions.reduce((acc, s) => acc + s.girlsCount, 0);
@@ -88,7 +78,7 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
       return {
         districtObj: dist,
         actualSubmissions: actualCount,
-        scaledCollected,
+        scaledCollected: actualCount,
         target: dist.totalSchoolsTarget,
         percentage: Number(distPercentage),
         totalBoys: distBoys,
@@ -190,6 +180,17 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
             </select>
           </div>
 
+          {onOpenGoogleSheetsModal && (
+            <button
+              onClick={onOpenGoogleSheetsModal}
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-emerald-600"
+              title="Google Sheets Database Setup"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
+              <span>{isMarathi ? 'गूगल शीट लिंक (₹०)' : 'Google Sheet Setup'}</span>
+            </button>
+          )}
+
           <button
             onClick={handleExportCSV}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
@@ -231,7 +232,7 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {simulatedStateCollected.toLocaleString('en-IN')}
+            {totalSubmissions.toLocaleString('en-IN')}
           </div>
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
             <div
