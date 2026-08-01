@@ -24,7 +24,7 @@ interface NavbarProps {
   setLang: (lang: 'mr' | 'en') => void;
   onResetData: () => void;
   totalSubmissionsCount: number;
-  onOpenGoogleSheetsModal: () => void;
+  onOpenGoogleSheetsModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -39,7 +39,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   setLang,
   onResetData,
   totalSubmissionsCount,
-  onOpenGoogleSheetsModal,
 }) => {
   const isMarathi = lang === 'mr';
 
@@ -133,15 +132,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onOpenGoogleSheetsModal}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-0.5 rounded text-[11px] transition-colors flex items-center gap-1.5 border border-emerald-400/40 cursor-pointer shadow-xs"
-            title="Configure 100% Free Google Sheet + Cloudflare Pages Setup"
-          >
-            <span>⚡</span>
-            <span>{isMarathi ? 'गूगल शीट + क्लाउडफ्लेअर (₹० मोफत)' : 'Free Cloud Setup (₹0)'}</span>
-          </button>
-
           <button
             onClick={() => setLang(isMarathi ? 'en' : 'mr')}
             className="hover:bg-slate-800 bg-slate-800/80 px-2.5 py-0.5 rounded text-slate-200 font-semibold transition-colors flex items-center gap-1 text-[11px] border border-slate-700 cursor-pointer"
