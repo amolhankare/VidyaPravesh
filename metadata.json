@@ -1,0 +1,6 @@
+{
+  "name": "Maharashtra Vidya Pravesh Data Portal",
+  "description": "Vidya Pravesh Class 1 school assessment form and district/cluster-wise collection admin dashboard for Maharashtra schools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
