@@ -88,6 +88,11 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
     });
   }, [filteredSubmissions]);
 
+  // Active districts reporting
+  const activeDistrictsCount = useMemo(() => {
+    return districtStatsMap.filter((d) => d.actualSubmissions > 0).length;
+  }, [districtStatsMap]);
+
   // Filter districts by search query
   const searchedDistrictStats = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -256,7 +261,7 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {(totalStudents * 1000 + 1850000).toLocaleString('en-IN')}
+            {totalStudents.toLocaleString('en-IN')}
           </div>
           <p className="text-xs text-slate-500">
             {isMarathi ? 'मुले व मुली एकूण नोंदणी' : 'Total Grade 1 Students Evaluated'}
@@ -270,14 +275,18 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
               {isMarathi ? 'सक्रिय जिल्हे' : 'Active Districts'}
             </span>
             <div className="w-8 h-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-xs">
-              36
+              {activeDistrictsCount}
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 tracking-tight">36 / 36</div>
+          <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            {activeDistrictsCount} / 36
+          </div>
           <p className="text-xs text-blue-600 font-semibold flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>
-              {isMarathi ? '१००% जिल्हे डेटा रिपोर्ट करत आहेत' : '100% Districts Reporting'}
+              {isMarathi
+                ? `${activeDistrictsCount} जिल्हे डेटा रिपोर्ट करत आहेत`
+                : `${activeDistrictsCount} Districts Reporting`}
             </span>
           </p>
         </div>
