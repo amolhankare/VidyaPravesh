@@ -4,8 +4,8 @@ import { DISTRICT_BLOCKS_MAP } from './allDistrictBlocks';
 export const ASSESSMENT_CRITERIA: CriteriaConfig[] = [
   {
     id: 1,
-    marathiLabel: 'वैयक्तिक स्वच्छता चांगली किंवा सुधारण्याची गरज वाटते',
-    englishLabel: 'Personal Hygiene is good or needs improvement',
+    marathiLabel: 'वैयक्तिक स्वच्छता (चांगली किंवा सुधारणेची गरज वाटते)',
+    englishLabel: 'Personal Hygiene (Good or needs improvement)',
     type: 'frequency',
     optionsMarathi: ['क्वचित (Rarely)', 'कधीकधी (Sometimes)', 'नेहमी (Always)'],
     optionsEnglish: ['Rarely', 'Sometimes', 'Always'],
@@ -33,9 +33,9 @@ export const ASSESSMENT_CRITERIA: CriteriaConfig[] = [
   {
     id: 4,
     marathiLabel:
-      'सर्जनशील कलात्मक उपक्रमांमध्ये सहभाग, सूक्ष्म कारक विकास कल्पनाशक्ती व कलात्मक सौंदर्य दृष्टीचा विकास',
+      'सर्जनशील कलात्मक उपक्रमांमध्ये सहभाग- सूक्ष्मकारक विकास, कल्पनाशक्ती व कलात्मक / सौंदर्य दृष्टीचा विकास.',
     englishLabel:
-      'Participation in creative artistic activities, fine motor skills & aesthetic vision',
+      'Participation in creative artistic activities - fine motor development, imagination & artistic/aesthetic vision development',
     type: 'effort',
     optionsMarathi: [
       'मदतीची आवश्यकता असते (Needs Help)',
@@ -46,7 +46,7 @@ export const ASSESSMENT_CRITERIA: CriteriaConfig[] = [
   },
   {
     id: 5,
-    marathiLabel: 'गणिती कौशल्य व परिसराबद्दलची जागरूकता दाखवणे',
+    marathiLabel: 'गणिती कौशल्ये व परिसराबद्दलची जागरूकता दाखविणे.',
     englishLabel: 'Demonstrating mathematical skills & environmental awareness',
     type: 'effort',
     optionsMarathi: [
@@ -58,7 +58,7 @@ export const ASSESSMENT_CRITERIA: CriteriaConfig[] = [
   },
   {
     id: 6,
-    marathiLabel: 'तोंडी अभिव्यक्ति',
+    marathiLabel: 'तोंडी अभिव्यक्ती',
     englishLabel: 'Oral Expression',
     type: 'frequency',
     optionsMarathi: ['क्वचित (Rarely)', 'कधीकधी (Sometimes)', 'नेहमी (Always)'],
@@ -66,16 +66,16 @@ export const ASSESSMENT_CRITERIA: CriteriaConfig[] = [
   },
   {
     id: 7,
-    marathiLabel: 'अंकुर ती वाचन कौशल्ये',
-    englishLabel: 'Early Reading Skills (Ankur Reading)',
+    marathiLabel: 'अंकुरते वाचन कौशल्ये',
+    englishLabel: 'Emergent Reading Skills',
     type: 'frequency',
     optionsMarathi: ['क्वचित (Rarely)', 'कधीकधी (Sometimes)', 'नेहमी (Always)'],
     optionsEnglish: ['Rarely', 'Sometimes', 'Always'],
   },
   {
     id: 8,
-    marathiLabel: 'अंकुरतया लेखनाची कौशल्ये',
-    englishLabel: 'Early Writing Skills (Ankur Writing)',
+    marathiLabel: 'अंकुरते लेखनाची कौशल्ये',
+    englishLabel: 'Emergent Writing Skills',
     type: 'frequency',
     optionsMarathi: ['क्वचित (Rarely)', 'कधीकधी (Sometimes)', 'नेहमी (Always)'],
     optionsEnglish: ['Rarely', 'Sometimes', 'Always'],

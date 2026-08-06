@@ -21,9 +21,6 @@ import {
   Building,
   UserCheck,
   Calculator,
-  Database,
-  FileSpreadsheet,
-  Server,
   Info,
   RefreshCw,
 } from 'lucide-react';
@@ -936,61 +933,6 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                   })}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          {/* Data Storage Architecture Guide (Google Sheets vs MySQL / Cloud SQL) */}
-          <div className="bg-slate-900 text-white p-5 rounded-xl shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Database className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-bold tracking-wide">
-                  {isMarathi
-                    ? '🗄️ डेटा साठवणूक पर्याय (Google Sheet + Cloudflare Pages = ₹०/महिना मोफत)'
-                    : '🗄️ Data Storage Options (Google Sheets + Cloudflare Pages = $0/month)'}
-                </h3>
-              </div>
-              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                100% Free Setup Available
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              {/* Option 1: Google Sheets */}
-              <div className="bg-slate-800/80 p-3.5 rounded-lg border border-emerald-500/40 space-y-2">
-                <div className="flex items-center justify-between text-emerald-400 font-bold text-xs">
-                  <span className="flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span>१. गूगल शीट्स + अ‍ॅप्स स्क्रिप्ट (Google Sheets + GAS)</span>
-                  </span>
-                  <span className="bg-emerald-400 text-slate-900 text-[10px] px-1.5 py-0.5 rounded font-extrabold">
-                    ₹० FREE
-                  </span>
-                </div>
-                <p className="text-slate-300 leading-relaxed text-[11px]">
-                  {isMarathi
-                    ? 'अतिशय सोपे आणि १००% मोफत! Google Apps Script द्वारे UDISE + Month चे युनिकनेस चेक करून जुनी नोंद अपडेट केली जाते. कोणतेही क्रेडिट कार्ड किंवा सर्व्हर खर्च लागत नाही.'
-                    : '100% Free & Zero Server Cost! Uses Google Apps Script to auto-check UDISE + Month uniqueness and update existing rows without duplicates.'}
-                </p>
-              </div>
-
-              {/* Option 2: MySQL / Cloud SQL */}
-              <div className="bg-slate-800/80 p-3.5 rounded-lg border border-slate-700/60 space-y-2">
-                <div className="flex items-center justify-between text-blue-400 font-bold text-xs">
-                  <span className="flex items-center gap-2">
-                    <Server className="w-4 h-4" />
-                    <span>२. मायएसक्यूएल / क्लाऊड एसक्यूएल (MySQL / Cloud SQL)</span>
-                  </span>
-                  <span className="bg-blue-400/20 text-blue-300 border border-blue-400/30 text-[10px] px-1.5 py-0.5 rounded font-bold">
-                    Enterprise
-                  </span>
-                </div>
-                <p className="text-slate-300 leading-relaxed text-[11px]">
-                  {isMarathi
-                    ? 'अति-मोठ्या (१,२४,०००+ शाळा) उच्च ट्रॅफिकसाठी. UNIQUE(udise_no, month) डेटाबेस इंडेक्स द्वारे हाय-स्पीड परफॉर्मन्स मिळतो.'
-                    : 'For high-concurrency state scale. Uses native relational database tables with UNIQUE(udise_no, month) index constraints.'}
-                </p>
-              </div>
             </div>
           </div>
 
