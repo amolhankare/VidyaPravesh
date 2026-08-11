@@ -866,8 +866,8 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                               }
                               className="w-16 mx-auto text-center font-bold text-slate-800 bg-white border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-600"
                             />
-                            <span className="block text-[10px] text-slate-600 font-medium">
-                              {crit.optionsMarathi[0].split(' ')[0]}
+                            <span className="block text-[10px] text-slate-600 font-semibold whitespace-normal leading-tight">
+                              {crit.type === 'frequency' ? '१. क्वचित' : '१. मदतीची गरज'}
                             </span>
                           </div>
                         </td>
@@ -888,8 +888,8 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                               }
                               className="w-16 mx-auto text-center font-bold text-slate-800 bg-white border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-600"
                             />
-                            <span className="block text-[10px] text-slate-600 font-medium">
-                              {crit.optionsMarathi[1].split(' ')[0]}
+                            <span className="block text-[10px] text-slate-600 font-semibold whitespace-normal leading-tight">
+                              {crit.type === 'frequency' ? '२. कधीकधी' : '२. थोड्या प्रयत्नाने'}
                             </span>
                           </div>
                         </td>
@@ -910,8 +910,8 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                               }
                               className="w-16 mx-auto text-center font-bold text-slate-800 bg-white border border-blue-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-600"
                             />
-                            <span className="block text-[10px] text-blue-800 font-medium">
-                              {crit.optionsMarathi[2].split(' ')[0]}
+                            <span className="block text-[10px] text-blue-800 font-bold whitespace-normal leading-tight">
+                              {crit.type === 'frequency' ? '३. नेहमी' : '३. सहज करता येते'}
                             </span>
                           </div>
                         </td>

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { SchoolAssessmentSubmission, AssessmentMonth } from '../types';
 import {
-  MAHARASHTRA_DISTRICTS,
   ASSESSMENT_MONTHS,
   ASSESSMENT_CRITERIA,
 } from '../data/maharashtraData';
+import { getEffectiveDistricts } from '../utils/districtTargets';
+import { exportAllSubmissionsToExcelCSV } from '../utils/export';
 import {
   MapPin,
   Building,
@@ -15,6 +16,9 @@ import {
   Filter,
   ArrowRight,
   TrendingUp,
+  Download,
+  Target,
+  Edit3,
 } from 'lucide-react';
 
 interface DistrictAdminViewProps {
@@ -23,6 +27,8 @@ interface DistrictAdminViewProps {
   setSelectedDistrictName: (districtName: string) => void;
   lang: 'mr' | 'en';
   onNavigateToCluster: (district: string, block: string, cluster: string) => void;
+  onOpenEditTargetsModal?: (districtId?: string) => void;
+  targetsVersion?: number;
 }
 
 export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
@@ -31,21 +37,27 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
   setSelectedDistrictName,
   lang,
   onNavigateToCluster,
+  onOpenEditTargetsModal,
+  targetsVersion = 0,
 }) => {
   const isMarathi = lang === 'mr';
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
 
+  const effectiveDistricts = useMemo(() => {
+    return getEffectiveDistricts();
+  }, [targetsVersion]);
+
   // Find district object
   const currentDistrictObj = useMemo(() => {
     return (
-      MAHARASHTRA_DISTRICTS.find(
+      effectiveDistricts.find(
         (d) =>
           d.nameMarathi === selectedDistrictName ||
           d.nameEnglish === selectedDistrictName ||
           selectedDistrictName.includes(d.nameEnglish)
-      ) || MAHARASHTRA_DISTRICTS[0]
+      ) || effectiveDistricts[0]
     );
-  }, [selectedDistrictName]);
+  }, [selectedDistrictName, effectiveDistricts]);
 
   // Filter submissions by district and month
   const districtSubmissions = useMemo(() => {
@@ -143,7 +155,7 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
               onChange={(e) => setSelectedDistrictName(e.target.value)}
               className="bg-white text-slate-900 font-bold text-sm rounded px-2.5 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer border border-slate-200"
             >
-              {MAHARASHTRA_DISTRICTS.map((d) => (
+              {effectiveDistricts.map((d) => (
                 <option key={d.id} value={d.nameMarathi}>
                   {d.nameMarathi}
                 </option>
@@ -171,6 +183,21 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Excel Export Button */}
+          <button
+            onClick={() =>
+              exportAllSubmissionsToExcelCSV(
+                districtSubmissions,
+                `Vidya_Pravesh_${currentDistrictObj.nameEnglish}_District_Data_${selectedMonth}`
+              )
+            }
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-emerald-500 self-end"
+            title="Download district school submissions in Excel format"
+          >
+            <Download className="w-4 h-4 text-emerald-100" />
+            <span>{isMarathi ? '📊 जिल्हा एक्ससेल डाऊनलोड' : '📊 Export District Excel'}</span>
+          </button>
         </div>
       </div>
 
@@ -180,8 +207,18 @@ export const DistrictAdminView: React.FC<DistrictAdminViewProps> = ({
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
             {isMarathi ? 'जिल्हा एकूण शाळा लक्ष्य' : 'District Target Schools'}
           </span>
-          <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {currentDistrictObj.totalSchoolsTarget.toLocaleString('en-IN')}
+          <div className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center justify-between">
+            <span>{currentDistrictObj.totalSchoolsTarget.toLocaleString('en-IN')}</span>
+            {onOpenEditTargetsModal && (
+              <button
+                onClick={() => onOpenEditTargetsModal(currentDistrictObj.id)}
+                className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50 transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
+                title={isMarathi ? 'या जिल्ह्याचे उद्दिष्ट बदला' : 'Edit Target for District'}
+              >
+                <Edit3 className="w-4 h-4" />
+                <span className="text-[10px]">{isMarathi ? 'बदला' : 'Edit'}</span>
+              </button>
+            )}
           </div>
           <p className="text-xs text-slate-500">
             {currentDistrictObj.blocks.length} {isMarathi ? 'तालुके / ब्लॉक' : 'Blocks / Talukas'}

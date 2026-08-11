@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { SchoolAssessmentSubmission, AssessmentMonth } from '../types';
 import {
-  MAHARASHTRA_DISTRICTS,
-  MAHARASHTRA_TOTAL_SCHOOL_TARGET,
   ASSESSMENT_MONTHS,
 } from '../data/maharashtraData';
+import {
+  getEffectiveDistricts,
+  getEffectiveTotalStateTarget,
+} from '../utils/districtTargets';
+import { exportAllSubmissionsToExcelCSV } from '../utils/export';
 import {
   Building2,
   Users,
@@ -14,8 +17,9 @@ import {
   Filter,
   ArrowRight,
   TrendingUp,
-  Award,
   FileSpreadsheet,
+  Target,
+  Edit3,
 } from 'lucide-react';
 
 interface StateAdminViewProps {
@@ -23,6 +27,8 @@ interface StateAdminViewProps {
   lang: 'mr' | 'en';
   onSelectDistrict: (districtName: string) => void;
   onOpenGoogleSheetsModal?: () => void;
+  onOpenEditTargetsModal?: (districtId?: string) => void;
+  targetsVersion?: number; // state trigger to re-render when targets change
 }
 
 export const StateAdminView: React.FC<StateAdminViewProps> = ({
@@ -30,10 +36,21 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
   lang,
   onSelectDistrict,
   onOpenGoogleSheetsModal,
+  onOpenEditTargetsModal,
+  targetsVersion = 0,
 }) => {
   const isMarathi = lang === 'mr';
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Effective district targets (including custom admin overrides)
+  const effectiveDistricts = useMemo(() => {
+    return getEffectiveDistricts();
+  }, [targetsVersion]);
+
+  const effectiveTotalTarget = useMemo(() => {
+    return getEffectiveTotalStateTarget();
+  }, [targetsVersion]);
 
   // Filter submissions by month if selected
   const filteredSubmissions = useMemo(() => {
@@ -42,10 +59,10 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
       : submissions.filter((s) => s.month === selectedMonth);
   }, [selectedMonth, submissions]);
 
-  // Calculate State Level Metrics (100% real submission counts)
+  // Calculate State Level Metrics
   const totalSubmissions = filteredSubmissions.length;
-  const percentageTarget = MAHARASHTRA_TOTAL_SCHOOL_TARGET > 0
-    ? ((totalSubmissions / MAHARASHTRA_TOTAL_SCHOOL_TARGET) * 100).toFixed(2)
+  const percentageTarget = effectiveTotalTarget > 0
+    ? ((totalSubmissions / effectiveTotalTarget) * 100).toFixed(2)
     : '0.00';
 
   const totalBoys = useMemo(
@@ -60,7 +77,7 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
 
   // District wise stats breakdown memoized
   const districtStatsMap = useMemo(() => {
-    return MAHARASHTRA_DISTRICTS.map((dist) => {
+    return effectiveDistricts.map((dist) => {
       const distSubmissions = filteredSubmissions.filter(
         (s) =>
           s.district.toLowerCase().includes(dist.nameEnglish.toLowerCase()) ||
@@ -86,7 +103,7 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
         totalStudents: distBoys + distGirls,
       };
     });
-  }, [filteredSubmissions]);
+  }, [filteredSubmissions, effectiveDistricts]);
 
   // Active districts reporting
   const activeDistrictsCount = useMemo(() => {
@@ -105,7 +122,15 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
     });
   }, [districtStatsMap, searchQuery]);
 
-  // Export State CSV
+  // Export All Submissions to Excel Sheet (.csv)
+  const handleExportAllExcel = () => {
+    exportAllSubmissionsToExcelCSV(
+      filteredSubmissions,
+      `Vidya_Pravesh_All_Schools_Data_${selectedMonth}`
+    );
+  };
+
+  // Export District Summary CSV
   const handleExportCSV = () => {
     const headers = [
       'District Name',
@@ -124,15 +149,15 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
     ]);
 
     const csvContent =
-      'data:text/csv;charset=utf-8,' +
+      '\uFEFF' +
       [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
 
-    const encodedUri = encodeURI(csvContent);
+    const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     link.setAttribute(
       'download',
-      `Maharashtra_Vidya_Pravesh_State_Report_${selectedMonth}.csv`
+      `Maharashtra_Vidya_Pravesh_District_Summary_${selectedMonth}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -185,6 +210,17 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
             </select>
           </div>
 
+          {onOpenEditTargetsModal && (
+            <button
+              onClick={() => onOpenEditTargetsModal()}
+              className="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-blue-600"
+              title="Edit District Target Schools"
+            >
+              <Target className="w-4 h-4 text-blue-200" />
+              <span>{isMarathi ? 'उद्दिष्ट बदल (Target)' : 'Edit Targets'}</span>
+            </button>
+          )}
+
           {onOpenGoogleSheetsModal && (
             <button
               onClick={onOpenGoogleSheetsModal}
@@ -197,11 +233,21 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
           )}
 
           <button
+            onClick={handleExportAllExcel}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-2 cursor-pointer border border-emerald-500"
+            title="Download full school submissions in Excel format"
+          >
+            <Download className="w-4 h-4 text-emerald-100" />
+            <span>{isMarathi ? '📊 सर्व डेटा एक्ससेल डाऊनलोड' : '📊 Export All Excel'}</span>
+          </button>
+
+          <button
             onClick={handleExportCSV}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
+            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
+            title="Download district wise summary CSV"
           >
             <Download className="w-4 h-4" />
-            <span>{isMarathi ? 'CSV डाउनलोड' : 'Export CSV'}</span>
+            <span>{isMarathi ? 'जिल्हा सारांश' : 'District CSV'}</span>
           </button>
         </div>
       </div>
@@ -218,8 +264,18 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
               1.2L+
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {MAHARASHTRA_TOTAL_SCHOOL_TARGET.toLocaleString('en-IN')}
+          <div className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center justify-between">
+            <span>{effectiveTotalTarget.toLocaleString('en-IN')}</span>
+            {onOpenEditTargetsModal && (
+              <button
+                onClick={() => onOpenEditTargetsModal()}
+                className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50 transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
+                title={isMarathi ? 'उद्दिष्ट संख्या बदला' : 'Edit District Targets'}
+              >
+                <Edit3 className="w-4 h-4" />
+                <span className="text-[10px]">{isMarathi ? 'बदला' : 'Edit'}</span>
+              </button>
+            )}
           </div>
           <p className="text-xs text-slate-500">
             {isMarathi ? 'महाराष्ट्रातील एकूण प्राथमिक शाळा' : 'Total Grade 1 Primary Schools'}
@@ -355,8 +411,22 @@ export const StateAdminView: React.FC<StateAdminViewProps> = ({
                       </span>
                     </td>
 
-                    <td className="p-3 text-center text-slate-600 font-semibold">
-                      {d.target.toLocaleString('en-IN')}
+                    <td className="p-3 text-center text-slate-700 font-bold">
+                      <div className="inline-flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
+                        <span>{d.target.toLocaleString('en-IN')}</span>
+                        {onOpenEditTargetsModal && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenEditTargetsModal(d.districtObj.id);
+                            }}
+                            className="text-slate-400 hover:text-blue-600 p-0.5 rounded transition-colors cursor-pointer"
+                            title={isMarathi ? 'या जिल्ह्याचे उद्दिष्ट बदला' : 'Edit target for this district'}
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     <td className="p-3 text-center text-slate-900 font-extrabold">

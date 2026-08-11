@@ -67,7 +67,18 @@ export function saveSubmission(submission: SchoolAssessmentSubmission): boolean 
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 
-    // Optional: Send data to Google Apps Script (Google Sheets ₹0 Free integration) if URL is configured
+    // 1. Sync to local Express backend server endpoint
+    fetch('/api/submissions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submission),
+    }).catch((err) => {
+      console.warn('Backend API submission sync warning:', err);
+    });
+
+    // 2. Send data to Google Apps Script (Google Sheets ₹0 Free integration) if URL is configured
     const gasUrl = getGoogleAppsScriptUrl();
     if (gasUrl && gasUrl.startsWith('http')) {
       fetch(gasUrl, {
@@ -91,15 +102,32 @@ export function saveSubmission(submission: SchoolAssessmentSubmission): boolean 
 export function resetToSeedData(): SchoolAssessmentSubmission[] {
   // Clear all data to empty state
   localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+  fetch('/api/submissions', { method: 'DELETE' }).catch(() => {});
   return [];
 }
 
 export function clearAllSubmissions(): SchoolAssessmentSubmission[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+  fetch('/api/submissions', { method: 'DELETE' }).catch(() => {});
   return [];
 }
 
 export async function fetchRemoteSubmissions(): Promise<SchoolAssessmentSubmission[] | null> {
+  // Try fetching from Express backend API first
+  try {
+    const apiRes = await fetch('/api/submissions');
+    if (apiRes.ok) {
+      const apiData = await apiRes.json();
+      if (Array.isArray(apiData) && apiData.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(apiData));
+        return apiData;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch from backend API /api/submissions:', err);
+  }
+
+  // Fallback to Google Sheet Apps Script URL if configured
   const gasUrl = getGoogleAppsScriptUrl();
   if (!gasUrl || !gasUrl.startsWith('http')) return null;
 

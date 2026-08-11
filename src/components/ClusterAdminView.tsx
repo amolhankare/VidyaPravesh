@@ -9,6 +9,7 @@ import {
   ASSESSMENT_MONTHS,
   ASSESSMENT_CRITERIA,
 } from '../data/maharashtraData';
+import { exportAllSubmissionsToExcelCSV } from '../utils/export';
 import {
   School,
   CheckCircle2,
@@ -22,6 +23,7 @@ import {
   Building,
   User,
   Calendar,
+  Download,
 } from 'lucide-react';
 
 interface ClusterAdminViewProps {
@@ -276,7 +278,7 @@ export const ClusterAdminView: React.FC<ClusterAdminViewProps> = ({
 
       {/* Submissions List Table */}
       <div className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <School className="w-5 h-5 text-blue-600" />
             <span>
@@ -284,9 +286,27 @@ export const ClusterAdminView: React.FC<ClusterAdminViewProps> = ({
               {isMarathi ? 'शाळा निहाय संकलन यादी' : 'School Wise Collection Roster'}
             </span>
           </h3>
-          <span className="text-xs font-bold text-slate-500">
-            {selectedMonth}
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-500">
+              {selectedMonth}
+            </span>
+
+            <button
+              onClick={() =>
+                exportAllSubmissionsToExcelCSV(
+                  clusterSubmissions,
+                  `Vidya_Pravesh_${currentClusterObj.name}_Data_${selectedMonth}`
+                )
+              }
+              disabled={clusterSubmissions.length === 0}
+              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-emerald-500"
+              title="Download cluster data in Excel format"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{isMarathi ? '📊 क्लस्टर डेटा एक्ससेल डाऊनलोड' : '📊 Export Cluster Excel'}</span>
+            </button>
+          </div>
         </div>
 
         {clusterSubmissions.length === 0 ? (
@@ -436,8 +456,8 @@ export const ClusterAdminView: React.FC<ClusterAdminViewProps> = ({
                       </p>
                       <div className="grid grid-cols-3 gap-2 text-center">
                         <div className="bg-slate-50 p-2 rounded border border-slate-100">
-                          <span className="block text-[10px] text-slate-500">
-                            {crit.optionsMarathi[0]}
+                          <span className="block text-[10px] text-slate-600 font-semibold">
+                            {crit.type === 'frequency' ? '१. क्वचित' : '१. मदतीची गरज'}
                           </span>
                           <strong className="text-slate-800 text-sm">
                             {val.level1} विद्यार्थी
@@ -445,8 +465,8 @@ export const ClusterAdminView: React.FC<ClusterAdminViewProps> = ({
                         </div>
 
                         <div className="bg-slate-50 p-2 rounded border border-slate-100">
-                          <span className="block text-[10px] text-slate-600">
-                            {crit.optionsMarathi[1]}
+                          <span className="block text-[10px] text-slate-600 font-semibold">
+                            {crit.type === 'frequency' ? '२. कधीकधी' : '२. थोड्या प्रयत्नाने'}
                           </span>
                           <strong className="text-slate-900 text-sm">
                             {val.level2} विद्यार्थी
@@ -454,8 +474,8 @@ export const ClusterAdminView: React.FC<ClusterAdminViewProps> = ({
                         </div>
 
                         <div className="bg-blue-50 p-2 rounded border border-blue-100">
-                          <span className="block text-[10px] text-blue-700 font-semibold">
-                            {crit.optionsMarathi[2]}
+                          <span className="block text-[10px] text-blue-700 font-bold">
+                            {crit.type === 'frequency' ? '३. नेहमी' : '३. सहज करता येते'}
                           </span>
                           <strong className="text-blue-800 text-sm">
                             {val.level3} विद्यार्थी

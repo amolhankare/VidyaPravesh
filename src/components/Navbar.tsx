@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   ArrowLeft,
   LayoutDashboard,
+  Download,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -25,6 +26,7 @@ interface NavbarProps {
   onResetData: () => void;
   totalSubmissionsCount: number;
   onOpenGoogleSheetsModal?: () => void;
+  onExportExcel?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -39,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setLang,
   onResetData,
   totalSubmissionsCount,
+  onExportExcel,
 }) => {
   const isMarathi = lang === 'mr';
 
@@ -230,6 +233,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </strong>
               </span>
             </span>
+
+            {onExportExcel && isAdminAuthenticated && (
+              <button
+                onClick={onExportExcel}
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-2.5 py-1.5 rounded-lg transition-colors text-xs flex items-center gap-1.5 cursor-pointer shadow-xs border border-emerald-600"
+                title={
+                  isMarathi
+                    ? 'सर्व डेटा एक्ससेल शीट मध्ये डाउनलोड करा (प्रशासकांसाठी)'
+                    : 'Export all data to Excel sheet (Admin Only)'
+                }
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-200" />
+                <span className="hidden sm:inline">
+                  {isMarathi ? '📊 एक्ससेल शीट (Admin)' : '📊 Excel Sheet (Admin)'}
+                </span>
+              </button>
+            )}
 
             <button
               onClick={onResetData}

@@ -26,9 +26,9 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     e.preventDefault();
     setError('');
 
-    // Default Demo Admin Credentials
+    // Default Admin Credentials
     const validUser = 'admin';
-    const validPass = 'admin123';
+    const validPass = 'Scert@321';
 
     if (username.trim().toLowerCase() === validUser && password === validPass) {
       onLoginSuccess();

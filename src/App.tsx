@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, PortalMode, SchoolAssessmentSubmission } from './types';
 import { getStoredSubmissions, clearAllSubmissions, fetchRemoteSubmissions } from './utils/storage';
+import { exportAllSubmissionsToExcelCSV } from './utils/export';
 import { Navbar } from './components/Navbar';
 import { SchoolForm } from './components/SchoolForm';
 import { StateAdminView } from './components/StateAdminView';
@@ -9,6 +10,7 @@ import { ClusterAdminView } from './components/ClusterAdminView';
 import { SchoolSearchModal } from './components/SchoolSearchModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { GoogleSheetsIntegrationModal } from './components/GoogleSheetsIntegrationModal';
+import { EditDistrictTargetModal } from './components/EditDistrictTargetModal';
 
 export default function App() {
   const [portalMode, setPortalMode] = useState<PortalMode>('user');
@@ -22,6 +24,11 @@ export default function App() {
 
   // Google Sheets Integration modal state
   const [isGoogleSheetsModalOpen, setIsGoogleSheetsModalOpen] = useState<boolean>(false);
+
+  // Target Schools Edit modal state
+  const [isEditTargetsModalOpen, setIsEditTargetsModalOpen] = useState<boolean>(false);
+  const [targetFocusDistrictId, setTargetFocusDistrictId] = useState<string | undefined>(undefined);
+  const [targetsVersion, setTargetsVersion] = useState<number>(0);
 
   // Selected hierarchy states for drill-down navigation
   const [selectedDistrict, setSelectedDistrict] = useState<string>('पुणे (Pune)');
@@ -130,7 +137,16 @@ export default function App() {
         setLang={setLang}
         onResetData={handleResetData}
         totalSubmissionsCount={submissions.length}
-        onOpenGoogleSheetsModal={() => setIsGoogleSheetsModalOpen(true)}
+        onOpenGoogleSheetsModal={
+          isAdminAuthenticated
+            ? () => setIsGoogleSheetsModalOpen(true)
+            : undefined
+        }
+        onExportExcel={
+          isAdminAuthenticated
+            ? () => exportAllSubmissionsToExcelCSV(submissions)
+            : undefined
+        }
       />
 
       {/* Admin Login Password Modal */}
@@ -141,11 +157,20 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Google Sheets Integration & Cloudflare Setup Modal */}
+      {/* Google Sheets Integration Modal */}
       <GoogleSheetsIntegrationModal
         isOpen={isGoogleSheetsModalOpen}
         onClose={() => setIsGoogleSheetsModalOpen(false)}
         lang={lang}
+      />
+
+      {/* Edit District Target Schools Modal */}
+      <EditDistrictTargetModal
+        isOpen={isEditTargetsModalOpen}
+        onClose={() => setIsEditTargetsModalOpen(false)}
+        lang={lang}
+        onTargetsUpdated={() => setTargetsVersion((v) => v + 1)}
+        focusDistrictId={targetFocusDistrictId}
       />
 
       {/* Main Content Area */}
@@ -160,6 +185,11 @@ export default function App() {
             lang={lang}
             onSelectDistrict={handleNavigateToDistrict}
             onOpenGoogleSheetsModal={() => setIsGoogleSheetsModalOpen(true)}
+            onOpenEditTargetsModal={(distId) => {
+              setTargetFocusDistrictId(distId);
+              setIsEditTargetsModalOpen(true);
+            }}
+            targetsVersion={targetsVersion}
           />
         )}
 
@@ -170,6 +200,11 @@ export default function App() {
             setSelectedDistrictName={setSelectedDistrict}
             lang={lang}
             onNavigateToCluster={handleNavigateToCluster}
+            onOpenEditTargetsModal={(distId) => {
+              setTargetFocusDistrictId(distId);
+              setIsEditTargetsModalOpen(true);
+            }}
+            targetsVersion={targetsVersion}
           />
         )}
 
@@ -215,14 +250,18 @@ export default function App() {
                 {lang === 'mr' ? 'लॉगआउट करा' : 'Logout Admin'}
               </button>
             )}
-            <span className="text-slate-600">|</span>
-            <button
-              onClick={() => setIsGoogleSheetsModalOpen(true)}
-              className="text-emerald-400 hover:underline font-medium text-xs cursor-pointer flex items-center gap-1"
-            >
-              <span>⚡</span>
-              <span>{lang === 'mr' ? 'गूगल शीट डेटाबेस सेटअप (₹० मोफत)' : 'Google Sheet Setup (₹0)'}</span>
-            </button>
+            {isAdminAuthenticated && (
+              <>
+                <span className="text-slate-600">|</span>
+                <button
+                  onClick={() => setIsGoogleSheetsModalOpen(true)}
+                  className="text-emerald-400 hover:underline font-medium text-xs cursor-pointer flex items-center gap-1"
+                >
+                  <span>⚡</span>
+                  <span>{lang === 'mr' ? 'गूगल शीट लिंक' : 'Google Sheet Link'}</span>
+                </button>
+              </>
+            )}
             <span className="text-slate-600">|</span>
             <p className="text-slate-500 text-[11px]">
               {lang === 'mr'
